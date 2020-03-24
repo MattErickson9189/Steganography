@@ -9,12 +9,27 @@ encoding = "UTF-8"
 platform = platform.system()
 
 def usage():
-    print("usage")
+    print("[???] Usage: python3 steg.py PathToImage Message PathToOutFile")
+    print("[???] Example: python3 steg.py myImage.png \"This is a secret message\" outFile.png")
+    print("[???] Remember to place your message in \" \" if it is more than one word")
+    print()
+    print("[1] Go to helper\n")
+    print("[2] Exit\n")
+    option = input("Enter your option: ")
+    
+    if option == '1':
+        helper()
+    elif option == '2':
+        print("Goodbye!\n")
+        sys.exit(0)
+    else:
+        clearScreen()
+        print()
+        print("[!!!] Sorry Your Option Was Not Recognized!\n")
+        usage()
 
 def mesToBinary(message):
     global encoding
-
-    print(message)
 
     binary = []
 
@@ -28,11 +43,6 @@ def getPixelData(image):
    
     pixels = list(image.getdata())
     width, height = image.size
-
-    print("Width: %d Height: %d" % (width,height))
-    print(len(pixels))
-    print(pixels[0])
-    print(pixels[0][0])
 
     return pixels, width, height
 
@@ -49,9 +59,6 @@ def modifyPixel(pixel, message):
         #Value is 1 for odd and 0 for even
 
         for j in range(0,8):
-            print(len(pixel))
-            print(j)
-            print(data)
             if (data[i][j]=='0') and (pixel[j]% 2 != 0):
 
                 if(pixel[j] % 2 != 0):
@@ -90,10 +97,9 @@ def writeImage(image, data, totalPixels):
             x+=1
         pixelsWritten+=1
         print("%d out of %d pixels written" % (pixelsWritten, totalPixels))
-        if platform == "Linux":
-            os.system("clear")
-        elif platform == "Windows":
-            os.system("cls")
+        clearScreen()
+ 
+    print("%d out of %d total pixels were modified" % (pixelsWritten, totalPixels))
 
 def encode(imgPath, message, outFile):
 
@@ -129,55 +135,62 @@ def decode(imgPath):
         if (pixels[-1]% 2 != 0):
             return data
 
+def helper():
+    clearScreen()
+
+    print("[---] Welcome To Image Encryptor Helper [---]\n\n")
+    print("[1] Help\n")
+    print("[2] Encrypt Image\n")
+    print("[3] Decrypt Image\n")
+    print("[4] Exit\n")
+
+    option = input("Enter your Option:")
+    
+    if option == '1':
+        clearScreen()
+        usage()
+    elif option == '2':
+        imgPath = input("Enter the file path to the image: ")
+        print()
+        message = input("Enter the message you want to encrypt: ")
+        print()
+        outFile = input("Enter the name of the resulting image: ")
+
+        encode(imgPath,message,outFile)
+    elif option == '3':
+        imgPath =input("Enter the file path to the image you want to decrypt: ")
+        print(decode(imgPath))
+    elif option == '4':
+        print("Goodbye!\n")
+        sys.exit(0)
+    else:
+        clearScreen()
+        print("Sorry That Option Was Not Recognized Try Again\n")
+        helper()
+
+def clearScreen():
+    if platform == "Linux":
+        os.system('clear')
+    elif platform == "Windows":
+        os.system('cls')
+    else:
+        print("\n")
+     
+
 def main():
 
-    if not len(sys.argv[1:]):
-        usage()
-
-    if len(sys.argv) > 2:
+    if len(sys.argv) == 1:
+        helper()
+    elif len(sys.argv) > 3:
         imgPath = sys.argv[1]
         message = sys.argv[2]
         outFile = sys.argv[3]
         encode(imgPath,message, outFile)
-    else:
+    elif len(sys.argv) == 2:
         imgPath = sys.argv[1]
         print(decode(imgPath))
-
-
-'''
-    #Read command line arguments
-    try:
-        opts, args = getopt.getopt(sys.argv[1:], "h:p:m:t:o:", ["help=","path=","message=","type=","outFile="])
-    except getopt.GetoptError as err:
+    else:
+        print("else")
         usage()
-
-    for o,a in opts:
-        if o in ("-h", "--help"):
-            usage()
-        elif o in ("-p", "--path"):
-            imgPath = a
-        elif o in ("-m", "--message"):
-            message = a
-        elif o in ("-t", "--type"):
-            if o == "encode" or o == "e":
-                encode = True
-            elif o == "decode" or o == "d":
-                decode == True
-            else: 
-                usage()
-        elif o in ("-o", "--outFile"):
-            outFile = a
-'''
-
-
-'''
-    if encode and decode:
-        print("[!!!] Error cannot encode and dcode at the same time!")
-        usage()
-    elif encode:
-        encode(imgPath, binary)
-    elif decode:
-       print(decode(imgPath))
-'''
 
 main()
